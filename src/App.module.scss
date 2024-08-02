@@ -1,0 +1,32 @@
+.App {
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+
+  .Side {
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: url("./assets//images/bg-main-desktop.png") no-repeat center center / cover;
+    width: 33%;
+    height: 100%;
+  }
+
+  main {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    padding: 0 10%;
+
+    .Content{
+      position: relative;
+      width: 30%;
+      height: 60%;
+    }
+  }
+}

@@ -1,0 +1,50 @@
+.FrontCard {
+  background: url("../../../assets/images/bg-card-front.png") no-repeat center
+    center / cover;
+  color: white;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  font-weight: 350;
+
+  .Logo {
+    width: 15%;
+    img {
+      width: 100%;
+    }
+  }
+
+  .Details {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 50%;
+
+    p {
+      margin: 0;
+      padding: 0;
+    }
+
+    .Number {
+      width: 100%;
+      font-size: 1.1rem;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: start;
+      gap:10px;
+    }
+
+    .Bottom {
+      font-size: 0.6rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+
+      .Name {
+        font-weight: 500;
+      }
+    }
+  }
+}

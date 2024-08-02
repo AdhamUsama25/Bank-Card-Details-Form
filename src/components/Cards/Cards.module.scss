@@ -1,0 +1,15 @@
+.Cards {
+  & > div {
+    height: 175px;
+    aspect-ratio: 2/1;
+    border-radius: 12px;
+    background-color: white;
+    margin: 25px 0;
+    letter-spacing: 2px;
+  }
+
+  & > div:last-child {
+   margin-left: 75px;
+  }
+
+}

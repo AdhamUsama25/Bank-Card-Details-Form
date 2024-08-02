@@ -1,0 +1,12 @@
+.BackCard {
+  background: url("../../../assets/images/bg-card-back.png") no-repeat center center / cover;
+position: relative;
+  p{
+    position: absolute;
+    top:77PX;
+    right: 40px;
+    color: white;
+    font-size: 12px;
+    
+  }
+}
