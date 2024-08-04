@@ -1,3 +1,4 @@
+import React from "react";
 import { useState } from "react";
 import classes from "./App.module.scss";
 import Cards from "./components/Cards/Cards";

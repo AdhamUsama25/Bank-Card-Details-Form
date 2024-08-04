@@ -1,3 +1,4 @@
+import React from "react";
 import CustomButton from "../UI/CustomButton/CustomButton";
 import checkIcon from "../../assets/images/icon-complete.svg";
 import classes from "./ThankYou.module.scss";
@@ -12,7 +13,7 @@ const ThankYou = ({ done, setDone }: ThankYouProps) => {
     <div className={[classes.ThankYou, done ? "Enter" : "Out"].join(" ")}>
       <img src={checkIcon} alt="Thank you" />
       <h1>Thank you!</h1>
-      <p>We've added your card details</p>
+      <p>We&apos;ve added your card details</p>
       <CustomButton text="Continue" onClick={() => setDone(false)} />
     </div>
   );

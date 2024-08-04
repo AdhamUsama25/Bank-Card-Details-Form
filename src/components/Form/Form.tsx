@@ -13,18 +13,87 @@ const numbersOnlyRegex = /^\d+$/;
 const englishRegex = /^[a-zA-Z ]+$/;
 const monthRegex = /^(0?[1-9]|1[0-2])$/;
 
-const Form = ({ setCardDetails, done, setDone }: FormProps) => {
-  const handleFormSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setDone(true);
-  };
+const handleNumberFormat = (value: string) => ({
+  nonSpacedNumber: value.split(" ").join(""),
+  spacedNumber: value
+    .replace(/\D/g, "")
+    .replace(/(.{4})/g, "$1 ")
+    .trim(),
+});
 
+const Form = ({ setCardDetails, done, setDone }: FormProps) => {
   const [errors, setErrors] = useState<FormErrors>({
     cardHolder: "",
     cardNumber: "",
     cardExpiry: "",
     CVC: "",
   });
+  const cardHolderInputRef = React.useRef<HTMLInputElement>(null);
+  const cardNumberInputRef = React.useRef<HTMLInputElement>(null);
+  const cardExpMonthInputRef = React.useRef<HTMLInputElement>(null);
+  const cardExpYearInputRef = React.useRef<HTMLInputElement>(null);
+  const CVCInputRef = React.useRef<HTMLInputElement>(null);
+
+  const handleSubmitErrors = () => {
+    const { nonSpacedNumber } = handleNumberFormat(
+      cardNumberInputRef.current?.value || ""
+    );
+
+    setErrors((prev) => ({
+      ...prev,
+
+      cardHolder:
+        cardHolderInputRef?.current?.value.length &&
+        !cardHolderInputRef.current?.value.match(englishRegex)
+          ? "Only English letters and spaces are allowed"
+          : "",
+
+      cardNumber: !nonSpacedNumber
+        ? "Can't be blank"
+        : nonSpacedNumber.length !== 16
+        ? "Card number must be 16 digits"
+        : "",
+
+      cardExpiry: !cardExpMonthInputRef.current?.value
+        ? "Can't be blank"
+        : !cardExpMonthInputRef.current?.value.match(monthRegex)
+        ? "Invalid month"
+        : !cardExpYearInputRef.current?.value
+        ? "Can't be blank"
+        : "",
+
+      CVC: !CVCInputRef.current?.value
+        ? "Can't be blank"
+        : CVCInputRef.current?.value.length !== 3
+        ? "CVC must be 3 digits"
+        : !CVCInputRef.current?.value.match(numbersOnlyRegex)
+        ? "Wrong format, numbers only"
+        : "",
+    }));
+
+    return (
+      cardExpMonthInputRef.current?.value.match(monthRegex) &&
+      nonSpacedNumber.length === 16 &&
+      CVCInputRef.current?.value.length === 3 &&
+      !errors.cardHolder &&
+      !errors.cardNumber &&
+      !errors.cardExpiry &&
+      !errors.CVC
+    );
+  };
+
+  const handleFormSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!cardHolderInputRef.current?.value) {
+      setCardDetails((prev) => ({
+        ...prev,
+        cardHolder: "",
+      }));
+    }
+    if (handleSubmitErrors()) {
+      setDone(true);
+    }
+  };
 
   const onHolderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setErrors((prev) => ({
@@ -42,20 +111,30 @@ const Form = ({ setCardDetails, done, setDone }: FormProps) => {
   };
 
   const onNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { spacedNumber, nonSpacedNumber } = handleNumberFormat(
+      e.target.value
+    );
 
-    setErrors(prev=>({
+    console.log(nonSpacedNumber);
+    cardNumberInputRef.current!.value = spacedNumber;
+
+    setErrors((prev) => ({
       ...prev,
-      cardNumber: e.target.value.match(numbersOnlyRegex) || !e.target.value
-      ? ""
-      : "Only numbers are allowed",
-    }))
+      cardNumber:
+        nonSpacedNumber.match(numbersOnlyRegex) || !nonSpacedNumber
+          ? ""
+          : "Wrong format, numbers only",
+    }));
 
     setCardDetails((prev) => ({
       ...prev,
-      cardNumber: e.target.value.padEnd(16, "0"),
+      cardNumber: nonSpacedNumber.padEnd(16, "0"),
     }));
 
-    if (e.target.value.length === 16)
+    if (
+      nonSpacedNumber.length === 16 &&
+      nonSpacedNumber.match(numbersOnlyRegex)
+    )
       document.getElementById("exp_month")?.focus();
   };
 
@@ -68,7 +147,19 @@ const Form = ({ setCardDetails, done, setDone }: FormProps) => {
       },
     }));
 
-    if (e.target.value.length === 2) {
+    if (!e.target.value.match(monthRegex)) {
+      setErrors((prev) => ({
+        ...prev,
+        cardExpiry: "Invalid month",
+      }));
+    } else {
+      setErrors((prev) => ({
+        ...prev,
+        cardExpiry: "",
+      }));
+    }
+
+    if (e.target.value.length === 2 && e.target.value.match(monthRegex)) {
       document.getElementById("exp_year")?.focus();
     }
   };
@@ -87,6 +178,14 @@ const Form = ({ setCardDetails, done, setDone }: FormProps) => {
   };
 
   const OnCvcChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setErrors((prev) => ({
+      ...prev,
+      CVC:
+        e.target.value.match(numbersOnlyRegex) || !e.target.value
+          ? ""
+          : "Only numbers are allowed",
+    }));
+
     if (!e.target.value) {
       setCardDetails((prev) => ({
         ...prev,
@@ -109,6 +208,7 @@ const Form = ({ setCardDetails, done, setDone }: FormProps) => {
       <div>
         <label htmlFor="holder">CardHolder name</label>
         <input
+          ref={cardHolderInputRef}
           className={errors.cardHolder ? classes.Error : ""}
           maxLength={20}
           onChange={onHolderChange}
@@ -124,8 +224,9 @@ const Form = ({ setCardDetails, done, setDone }: FormProps) => {
       <div>
         <label htmlFor="number">Card Number</label>
         <input
-          required
-          maxLength={16}
+          className={errors.cardNumber ? classes.Error : ""}
+          ref={cardNumberInputRef}
+          maxLength={19}
           onChange={onNumberChange}
           type="text"
           id="number"
@@ -141,7 +242,8 @@ const Form = ({ setCardDetails, done, setDone }: FormProps) => {
           <label>Exp.Date (MM/YY)</label>
           <div className={classes.ExpiryInputs}>
             <input
-              required
+              className={errors.cardExpiry ? classes.Error : ""}
+              ref={cardExpMonthInputRef}
               onChange={onExpMonthChange}
               maxLength={2}
               type="text"
@@ -149,7 +251,8 @@ const Form = ({ setCardDetails, done, setDone }: FormProps) => {
               id="exp_month"
             />
             <input
-              required
+              className={errors.cardExpiry ? classes.Error : ""}
+              ref={cardExpYearInputRef}
               onChange={onExpYearChange}
               maxLength={2}
               type="text"
@@ -165,7 +268,8 @@ const Form = ({ setCardDetails, done, setDone }: FormProps) => {
         <div className={classes.CVC}>
           <label htmlFor="CVC">CVC</label>
           <input
-            required
+            className={errors.CVC ? classes.Error : ""}
+            ref={CVCInputRef}
             maxLength={3}
             onChange={OnCvcChange}
             type="text"
