@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import classes from "./Form.module.scss";
 import { CardDetails, FormErrors } from "../../types";
 import { defaultCardDetails } from "../../data";
@@ -28,11 +28,38 @@ const Form = ({ setCardDetails, done, setDone }: FormProps) => {
     cardExpiry: "",
     CVC: "",
   });
+  const formRef = React.useRef<HTMLFormElement>(null);
   const cardHolderInputRef = React.useRef<HTMLInputElement>(null);
   const cardNumberInputRef = React.useRef<HTMLInputElement>(null);
   const cardExpMonthInputRef = React.useRef<HTMLInputElement>(null);
   const cardExpYearInputRef = React.useRef<HTMLInputElement>(null);
   const CVCInputRef = React.useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (!done) {
+      cardHolderInputRef.current?.focus();
+      setCardDetails(defaultCardDetails);
+    }
+  }, [done, setCardDetails]);
+
+  useEffect(() => {
+    const copyNonSpacedNumber = (e: ClipboardEvent) => {
+      e.preventDefault();
+      e.clipboardData?.setData(
+        "text/plain",
+        handleNumberFormat(cardNumberInputRef.current?.value ?? "")
+          .nonSpacedNumber
+      );
+    };
+    cardNumberInputRef.current?.addEventListener("copy", copyNonSpacedNumber);
+
+    return () => {
+      cardNumberInputRef.current?.removeEventListener(
+        "copy",
+        copyNonSpacedNumber
+      );
+    };
+  }, []);
 
   const handleSubmitErrors = () => {
     const { nonSpacedNumber } = handleNumberFormat(
@@ -82,6 +109,16 @@ const Form = ({ setCardDetails, done, setDone }: FormProps) => {
     );
   };
 
+  const resetForm = () => {
+    formRef.current?.reset();
+    setErrors({
+      cardHolder: "",
+      cardNumber: "",
+      cardExpiry: "",
+      CVC: "",
+    });
+  };
+
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!cardHolderInputRef.current?.value) {
@@ -92,6 +129,7 @@ const Form = ({ setCardDetails, done, setDone }: FormProps) => {
     }
     if (handleSubmitErrors()) {
       setDone(true);
+      resetForm();
     }
   };
 
@@ -202,6 +240,7 @@ const Form = ({ setCardDetails, done, setDone }: FormProps) => {
 
   return (
     <form
+      ref={formRef}
       onSubmit={handleFormSubmit}
       className={[classes.Form, done ? "Out" : "Enter"].join(" ")}
     >
