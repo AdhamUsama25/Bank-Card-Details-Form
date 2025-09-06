@@ -62,7 +62,6 @@ const validateCardNumber = (cardNumber: string) => {
 
 
 const Form = ({ setCardDetails, done, setDone }: FormProps) => {
-  const [hasErrors, setHasErrors] = useState(false)
   const [errors, setErrors] = useState<FormErrors>({
     cardHolder: "",
     cardNumber: "",
