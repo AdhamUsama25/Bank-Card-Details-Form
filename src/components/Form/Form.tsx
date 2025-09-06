@@ -21,44 +21,36 @@ const handleNumberFormat = (value: string) => ({
     .trim(),
 });
 
-const validateCardNumber = (cardNumber: string) => {
-  if (cardNumber.length < 16) return false;
+const validateCardNumber = (cardNumber: string): boolean => {
+  // Remove any non-digit characters (e.g., spaces or hyphens)
+  const cleanedNumber = cardNumber.replace(/\D/g, '');
 
-  const oddPlacesNumbers = [];
-  const evenPlacesNumbers = [];
+  // Check if the input is empty or contains non-digits
+  if (!cleanedNumber || cleanedNumber.length < 2) {
+    return false;
+  }
 
-  let isOdd = true;
+  let sum = 0;
+  let isEven = false;
 
-  for (let i = 0; i < 16; i++) {
+  // Iterate from right to left
+  for (let i = cleanedNumber.length - 1; i >= 0; i--) {
+    const digit = parseInt(cleanedNumber[i], 10);
 
-    if (isOdd) {
-      oddPlacesNumbers.push(+cardNumber[i])
+    if (isEven) {
+      const doubled = digit * 2;
+      // If doubled value is greater than 9, subtract 9 (equivalent to summing digits)
+      sum += doubled > 9 ? doubled - 9 : doubled;
     } else {
-      evenPlacesNumbers.push(+cardNumber[i])
+      sum += digit;
     }
 
-    isOdd = !isOdd;
+    isEven = !isEven;
   }
 
-  const duplicatedEvens = evenPlacesNumbers.map(n => {
-
-    const double = n * 2;
-    if (double < 10) return double;
-
-    const doubleDigits = (double / 10).toString().split(".").map(c => +c);
-
-    return doubleDigits[0] + doubleDigits[1]
-
-  }
-  )
-  const duplicatedEvensSum = duplicatedEvens.reduce((s, a) => s + a, 0)
-  const oddPlacesSum = oddPlacesNumbers.reduce((s, a) => s + a, 0)
-
-  const sum = duplicatedEvensSum + oddPlacesSum;
-
-
+  // Valid if the sum is divisible by 10
   return sum % 10 === 0;
-}
+};
 
 
 const Form = ({ setCardDetails, done, setDone }: FormProps) => {
