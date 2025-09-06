@@ -1,7 +1,7 @@
+import cardLogo from "../../../assets/images/card-logo.svg";
 import { FrontCardDetails } from "../../../types";
 import classes from "./FrontCard.module.scss";
-import cardLogo from "../../../assets/images/card-logo.svg";
-
+import React from "react"
 interface FrontCardProps {
   frontCardDetails: FrontCardDetails;
 }

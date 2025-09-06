@@ -1,11 +1,10 @@
-import React from "react";
 import { useState } from "react";
 import classes from "./App.module.scss";
 import Cards from "./components/Cards/Cards";
-import { CardDetails } from "./types";
 import Form from "./components/Form/Form";
-import { defaultCardDetails } from "./data";
 import ThankYou from "./components/ThankYou/ThankYou";
+import { defaultCardDetails } from "./data";
+import { CardDetails } from "./types";
 
 function App() {
   const [cardDetails, setCardDetails] =

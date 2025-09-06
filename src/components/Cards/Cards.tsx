@@ -1,9 +1,8 @@
-import React from "react";
-import classes from "./Cards.module.scss";
 import { BackCardDetails, CardDetails, FrontCardDetails } from "../../types";
 import BackCard from "./BackCard/BackCard";
+import classes from "./Cards.module.scss";
 import FrontCard from "./FrontCard/FrontCard";
-
+import React from "react"
 interface CardsProps {
   cardDetails: CardDetails;
 }

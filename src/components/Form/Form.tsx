@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
-import classes from "./Form.module.scss";
-import { CardDetails, FormErrors } from "../../types";
 import { defaultCardDetails } from "../../data";
+import { CardDetails, FormErrors } from "../../types";
 import CustomButton from "../UI/CustomButton/CustomButton";
+import classes from "./Form.module.scss";
 
 interface FormProps {
   setCardDetails: React.Dispatch<React.SetStateAction<CardDetails>>;
@@ -21,7 +21,48 @@ const handleNumberFormat = (value: string) => ({
     .trim(),
 });
 
+const validateCardNumber = (cardNumber: string) => {
+  if (cardNumber.length < 16) return false;
+
+  const oddPlacesNumbers = [];
+  const evenPlacesNumbers = [];
+
+  let isOdd = true;
+
+  for (let i = 0; i < 16; i++) {
+
+    if (isOdd) {
+      oddPlacesNumbers.push(+cardNumber[i])
+    } else {
+      evenPlacesNumbers.push(+cardNumber[i])
+    }
+
+    isOdd = !isOdd;
+  }
+
+  const duplicatedEvens = evenPlacesNumbers.map(n => {
+
+    const double = n * 2;
+    if (double < 10) return double;
+
+    const doubleDigits = (double / 10).toString().split(".").map(c => +c);
+
+    return doubleDigits[0] + doubleDigits[1]
+
+  }
+  )
+  const duplicatedEvensSum = duplicatedEvens.reduce((s, a) => s + a, 0)
+  const oddPlacesSum = oddPlacesNumbers.reduce((s, a) => s + a, 0)
+
+  const sum = duplicatedEvensSum + oddPlacesSum;
+
+
+  return sum % 10 === 0;
+}
+
+
 const Form = ({ setCardDetails, done, setDone }: FormProps) => {
+  const [hasErrors, setHasErrors] = useState(false)
   const [errors, setErrors] = useState<FormErrors>({
     cardHolder: "",
     cardNumber: "",
@@ -68,34 +109,34 @@ const Form = ({ setCardDetails, done, setDone }: FormProps) => {
 
     setErrors((prev) => ({
       ...prev,
-
       cardHolder:
         cardHolderInputRef?.current?.value.length &&
-        !cardHolderInputRef.current?.value.match(englishRegex)
+          !cardHolderInputRef.current?.value.match(englishRegex)
           ? "Only English letters and spaces are allowed"
           : "",
 
       cardNumber: !nonSpacedNumber
         ? "Can't be blank"
         : nonSpacedNumber.length !== 16
-        ? "Card number must be 16 digits"
-        : "",
+          ? "Card number must be 16 digits"
+          : "",
+
 
       cardExpiry: !cardExpMonthInputRef.current?.value
         ? "Can't be blank"
         : !cardExpMonthInputRef.current?.value.match(monthRegex)
-        ? "Invalid month"
-        : !cardExpYearInputRef.current?.value
-        ? "Can't be blank"
-        : "",
+          ? "Invalid month"
+          : !cardExpYearInputRef.current?.value
+            ? "Can't be blank"
+            : "",
 
       CVC: !CVCInputRef.current?.value
         ? "Can't be blank"
         : CVCInputRef.current?.value.length !== 3
-        ? "CVC must be 3 digits"
-        : !CVCInputRef.current?.value.match(numbersOnlyRegex)
-        ? "Wrong format, numbers only"
-        : "",
+          ? "CVC must be 3 digits"
+          : !CVCInputRef.current?.value.match(numbersOnlyRegex)
+            ? "Wrong format, numbers only"
+            : "",
     }));
 
     return (
@@ -153,15 +194,26 @@ const Form = ({ setCardDetails, done, setDone }: FormProps) => {
       e.target.value
     );
 
-    console.log(nonSpacedNumber);
     cardNumberInputRef.current!.value = spacedNumber;
+
+    let errorMessage = ""
+
+
+    if (nonSpacedNumber.length === 16 && !validateCardNumber(nonSpacedNumber)) {
+      errorMessage = "Invalid card number"
+    }
+
+    if (!nonSpacedNumber.match(numbersOnlyRegex)) {
+      errorMessage = "Wrong format, numbers only"
+    }
+
+    if (!numbersOnlyRegex) {
+      errorMessage = "Please, provide card number"
+    }
 
     setErrors((prev) => ({
       ...prev,
-      cardNumber:
-        nonSpacedNumber.match(numbersOnlyRegex) || !nonSpacedNumber
-          ? ""
-          : "Wrong format, numbers only",
+      cardNumber: errorMessage
     }));
 
     setCardDetails((prev) => ({
@@ -319,7 +371,7 @@ const Form = ({ setCardDetails, done, setDone }: FormProps) => {
         </div>
       </div>
 
-      <CustomButton text="Confirm" type="submit" onClick={() => {}} />
+      <CustomButton text="Confirm" type="submit" onClick={() => { }} />
     </form>
   );
 };

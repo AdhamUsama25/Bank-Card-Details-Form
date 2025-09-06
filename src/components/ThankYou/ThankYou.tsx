@@ -1,6 +1,6 @@
 import React from "react";
-import CustomButton from "../UI/CustomButton/CustomButton";
 import checkIcon from "../../assets/images/icon-complete.svg";
+import CustomButton from "../UI/CustomButton/CustomButton";
 import classes from "./ThankYou.module.scss";
 
 interface ThankYouProps {
@@ -9,6 +9,7 @@ interface ThankYouProps {
 }
 
 const ThankYou = ({ done, setDone }: ThankYouProps) => {
+  if (!done) return <></>
   return (
     <div className={[classes.ThankYou, done ? "Enter" : "Out"].join(" ")}>
       <img src={checkIcon} alt="Thank you" />
