@@ -5,6 +5,7 @@ import Form from "./components/Form/Form";
 import ThankYou from "./components/ThankYou/ThankYou";
 import { defaultCardDetails } from "./data";
 import { CardDetails } from "./types";
+import React from "react"
 
 function App() {
   const [cardDetails, setCardDetails] =
